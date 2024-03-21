@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  inventory-control-api:
+    container_name: inventory-control-api
+    image: inventory-control-api-image
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://postgres:docker@postgres:5432/db_inventory_control?schema=public
+    networks:
+      - inventory-control-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - postgres
+   
+  postgres:
+    container_name: inventory-control-postgres
+    image: postgres:16
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=docker
+    networks:
+      - inventory-control-network
+    restart: unless-stopped
+
+networks:
+  inventory-control-network:
+    driver: bridge
